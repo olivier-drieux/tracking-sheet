@@ -1,29 +1,45 @@
-export default function Home() {
+import { Link } from '@adonisjs/inertia/react'
+import { InertiaProps } from '../types'
+
+const AnyLink = Link as any
+
+export default function Home({ user }: InertiaProps) {
   return (
     <>
       <div className="hero">
-        <h1>It works — welcome to the power of a full-stack React app</h1>
+        <h1>Suivez vos heures hebdomadaires et sortez une fiche PDF exploitable.</h1>
         <p>
-          Powered by Inertia and React, this setup blends server-driven routing with rich
-          client-side interactivity — seamless, fast, and cohesive.
+          Cette application centralise la saisie hebdomadaire, le calcul des totaux et la generation
+          d’une fiche conforme a votre modele de suivi.
         </p>
+        {user ? (
+          <AnyLink className="button" route="timesheets.index">
+            Ouvrir mes semaines
+          </AnyLink>
+        ) : (
+          <AnyLink className="button" route="new_account.create">
+            Creer un compte
+          </AnyLink>
+        )}
       </div>
 
       <div className="cards">
-        <a href="https://docs.adonisjs.com/introduction" target="_blank">
-          <h3>Official Docs &nbsp;›</h3>
-          <p>Comprehensive reference for building with AdonisJS</p>
-        </a>
+        <div>
+          <h3>Une fiche par semaine</h3>
+          <p>
+            Chaque semaine contient 7 lignes, les categories du modele papier et les totaux auto.
+          </p>
+        </div>
 
-        <a href="https://adocasts.com/" target="_blank">
-          <h3>Adocasts &nbsp;›</h3>
-          <p>Guided video tutorials for everyday development</p>
-        </a>
+        <div>
+          <h3>Profil reutilisable</h3>
+          <p>Nom, forfait annuel et signature imagee sont reinjectes dans tous les exports.</p>
+        </div>
 
-        <a href="https://discord.gg/vDcEjq6" target="_blank">
-          <h3>Discord &nbsp;›</h3>
-          <p>Connect with developers building with AdonisJS every day</p>
-        </a>
+        <div>
+          <h3>Export PDF</h3>
+          <p>Le document genere est pret a etre transmis sans ressaisie dans un autre outil.</p>
+        </div>
       </div>
     </>
   )

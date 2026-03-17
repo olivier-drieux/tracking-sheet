@@ -4,6 +4,8 @@ import { usePage } from '@inertiajs/react'
 import { ReactElement, useEffect } from 'react'
 import { Form, Link } from '@adonisjs/inertia/react'
 
+const AnyLink = Link as any
+
 export default function Layout({ children }: { children: ReactElement<Data.SharedProps> }) {
   useEffect(() => {
     toast.dismiss()
@@ -11,6 +13,10 @@ export default function Layout({ children }: { children: ReactElement<Data.Share
 
   if (children.props.flash.error) {
     toast.error(children.props.flash.error)
+  }
+
+  if (children.props.flash.success) {
+    toast.success(children.props.flash.success)
   }
 
   return (
@@ -37,6 +43,8 @@ export default function Layout({ children }: { children: ReactElement<Data.Share
             <nav>
               {children.props.user ? (
                 <>
+                  <AnyLink route="timesheets.index">Semaines</AnyLink>
+                  <AnyLink route="profile.edit">Profil</AnyLink>
                   <span>{children.props.user.initials}</span>
                   <Form route="session.destroy">
                     <button type="submit"> Logout </button>
@@ -44,8 +52,8 @@ export default function Layout({ children }: { children: ReactElement<Data.Share
                 </>
               ) : (
                 <>
-                  <Link route="new_account.create">Signup</Link>
-                  <Link route="session.create">Login</Link>
+                  <AnyLink route="new_account.create">Signup</AnyLink>
+                  <AnyLink route="session.create">Login</AnyLink>
                 </>
               )}
             </nav>

@@ -7,6 +7,8 @@ export default class UserTransformer extends BaseTransformer<User> {
       'id',
       'fullName',
       'email',
+      'annualDaysPackage',
+      'signatureDataUrl',
       'createdAt',
       'updatedAt',
       'initials',

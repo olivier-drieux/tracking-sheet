@@ -8,8 +8,19 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
 export class UserSchema extends BaseModel {
-  static $columns = ['createdAt', 'email', 'fullName', 'id', 'password', 'updatedAt'] as const
+  static $columns = [
+    'annualDaysPackage',
+    'createdAt',
+    'email',
+    'fullName',
+    'id',
+    'password',
+    'signatureDataUrl',
+    'updatedAt',
+  ] as const
   $columns = UserSchema.$columns
+  @column()
+  declare annualDaysPackage: number
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()
@@ -20,6 +31,95 @@ export class UserSchema extends BaseModel {
   declare id: number
   @column({ serializeAs: null })
   declare password: string
+  @column()
+  declare signatureDataUrl: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
+}
+
+export class WeeklyTimesheetEntrySchema extends BaseModel {
+  static $columns = [
+    'conventionalPaidLeaveDays',
+    'createdAt',
+    'dayLabel',
+    'entryDate',
+    'id',
+    'legalPaidLeaveDays',
+    'otherAbsenceDays',
+    'otherAbsenceReason',
+    'position',
+    'publicHolidayDays',
+    'rttDays',
+    'sickDays',
+    'updatedAt',
+    'weeklyRestDays',
+    'weeklyTimesheetId',
+    'workedDays',
+    'workedHours',
+  ] as const
+  $columns = WeeklyTimesheetEntrySchema.$columns
+  @column()
+  declare conventionalPaidLeaveDays: number | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare dayLabel: string
+  @column.date()
+  declare entryDate: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare legalPaidLeaveDays: number | null
+  @column()
+  declare otherAbsenceDays: number | null
+  @column()
+  declare otherAbsenceReason: string | null
+  @column()
+  declare position: number
+  @column()
+  declare publicHolidayDays: number | null
+  @column()
+  declare rttDays: number | null
+  @column()
+  declare sickDays: number | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare weeklyRestDays: number | null
+  @column()
+  declare weeklyTimesheetId: number
+  @column()
+  declare workedDays: number | null
+  @column()
+  declare workedHours: number | null
+}
+
+export class WeeklyTimesheetSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'id',
+    'monthLabel',
+    'status',
+    'updatedAt',
+    'userId',
+    'weekStartDate',
+    'year',
+  ] as const
+  $columns = WeeklyTimesheetSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare monthLabel: string
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: number
+  @column.date()
+  declare weekStartDate: DateTime
+  @column()
+  declare year: number
 }

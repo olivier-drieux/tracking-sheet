@@ -36,6 +36,48 @@ const routes = {
     tokens: [{"old":"/login","type":0,"val":"login","end":""}],
     types: placeholder as Registry['session.store']['types'],
   },
+  'timesheets.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/timesheets',
+    tokens: [{"old":"/timesheets","type":0,"val":"timesheets","end":""}],
+    types: placeholder as Registry['timesheets.index']['types'],
+  },
+  'timesheets.store': {
+    methods: ["POST"],
+    pattern: '/timesheets',
+    tokens: [{"old":"/timesheets","type":0,"val":"timesheets","end":""}],
+    types: placeholder as Registry['timesheets.store']['types'],
+  },
+  'timesheets.edit': {
+    methods: ["GET","HEAD"],
+    pattern: '/timesheets/:id',
+    tokens: [{"old":"/timesheets/:id","type":0,"val":"timesheets","end":""},{"old":"/timesheets/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['timesheets.edit']['types'],
+  },
+  'timesheets.update': {
+    methods: ["PUT"],
+    pattern: '/timesheets/:id',
+    tokens: [{"old":"/timesheets/:id","type":0,"val":"timesheets","end":""},{"old":"/timesheets/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['timesheets.update']['types'],
+  },
+  'timesheets.pdf': {
+    methods: ["GET","HEAD"],
+    pattern: '/timesheets/:id/pdf',
+    tokens: [{"old":"/timesheets/:id/pdf","type":0,"val":"timesheets","end":""},{"old":"/timesheets/:id/pdf","type":1,"val":"id","end":""},{"old":"/timesheets/:id/pdf","type":0,"val":"pdf","end":""}],
+    types: placeholder as Registry['timesheets.pdf']['types'],
+  },
+  'profile.edit': {
+    methods: ["GET","HEAD"],
+    pattern: '/profile',
+    tokens: [{"old":"/profile","type":0,"val":"profile","end":""}],
+    types: placeholder as Registry['profile.edit']['types'],
+  },
+  'profile.update': {
+    methods: ["PUT"],
+    pattern: '/profile',
+    tokens: [{"old":"/profile","type":0,"val":"profile","end":""}],
+    types: placeholder as Registry['profile.update']['types'],
+  },
   'session.destroy': {
     methods: ["POST"],
     pattern: '/logout',
