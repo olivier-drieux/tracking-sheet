@@ -1,6 +1,9 @@
 import { Form } from '@adonisjs/inertia/react'
+import { usePage } from '@inertiajs/react'
 
 export default function Signup() {
+  const page = usePage() as any
+
   return (
     <div className="form-container">
       <div>
@@ -12,6 +15,7 @@ export default function Signup() {
         <Form route="new_account.store">
           {({ errors }) => (
             <>
+              <input type="hidden" name="_csrf" value={page.props.csrfToken} />
               <div>
                 <label htmlFor="fullName">Full name</label>
                 <input
