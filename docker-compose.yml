@@ -15,9 +15,32 @@ services:
       APP_URL: http://localhost:3333
       APP_KEY: change-me-in-production
       SESSION_DRIVER: cookie
+      DB_CONNECTION: pg
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: tracking_sheet
+      DB_PASSWORD: tracking_sheet
+      DB_DATABASE: tracking_sheet
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "node bin/console.js migration:run --force && node bin/server.js"
+
+  db:
+    image: postgres:17-bookworm
+    container_name: tracking-sheet-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tracking_sheet
+      POSTGRES_USER: tracking_sheet
+      POSTGRES_PASSWORD: tracking_sheet
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U tracking_sheet -d tracking_sheet']
+      interval: 5s
+      timeout: 5s
+      retries: 10
     volumes:
-      - tracking-sheet-tmp:/app/tmp
-    command: sh -c "node ace migration:run --force && node bin/server.js"
+      - tracking-sheet-postgres:/var/lib/postgresql/data
 
 volumes:
-  tracking-sheet-tmp:
+  tracking-sheet-postgres:
