@@ -38,6 +38,20 @@ export interface TimesheetEntryInput {
   otherAbsenceReason: string
 }
 
+export interface TimesheetEntryPayload {
+  date: string
+  workedHours?: string
+  workedDays?: string
+  weeklyRestDays?: string
+  legalPaidLeaveDays?: string
+  conventionalPaidLeaveDays?: string
+  publicHolidayDays?: string
+  rttDays?: string
+  sickDays?: string
+  otherAbsenceDays?: string
+  otherAbsenceReason?: string
+}
+
 export interface TimesheetWarning {
   dayLabel: string
   date: string
@@ -55,23 +69,6 @@ export interface TimesheetTotals {
   sickDays: number
   otherAbsenceDays: number
 }
-
-export interface ParsedTimesheetPayload {
-  entries: TimesheetEntryInput[]
-  fieldErrors: Record<string, string>
-}
-
-const NUMBER_FIELDS = [
-  'workedHours',
-  'workedDays',
-  'weeklyRestDays',
-  'legalPaidLeaveDays',
-  'conventionalPaidLeaveDays',
-  'publicHolidayDays',
-  'rttDays',
-  'sickDays',
-  'otherAbsenceDays',
-] as const
 
 function roundValue(value: number): number {
   return Math.round(value * 100) / 100
@@ -113,89 +110,45 @@ export function buildDefaultEntries(weekStartDate: DateTime): TimesheetEntryInpu
   })
 }
 
-function parseNullableNumber(
-  value: unknown,
-  fieldPath: string,
-  errors: Record<string, string>,
-  options: { halfStepOnly?: boolean; max?: number } = {}
-): number | null {
-  if (value === null || value === undefined || value === '') {
+function parseNullableNumber(value: string | undefined, options: { max?: number } = {}): number | null {
+  if (!value) {
     return null
   }
 
-  const normalized = String(value).trim().replace(',', '.')
-  if (!/^\d+(\.\d{1,2})?$/.test(normalized)) {
-    errors[fieldPath] = 'Valeur numérique invalide'
-    return null
-  }
-
+  const normalized = value.trim().replace(',', '.')
   const parsed = Number(normalized)
+
   if (!Number.isFinite(parsed) || parsed < 0) {
-    errors[fieldPath] = 'La valeur doit être positive'
     return null
   }
 
   if (options.max !== undefined && parsed > options.max) {
-    errors[fieldPath] = `La valeur doit être inférieure ou égale à ${options.max}`
-    return null
-  }
-
-  if (options.halfStepOnly && Math.round(parsed * 2) !== parsed * 2) {
-    errors[fieldPath] = 'Utilisez des pas de 0,5'
     return null
   }
 
   return roundValue(parsed)
 }
 
-export function parseTimesheetEntries(input: unknown): ParsedTimesheetPayload {
-  const rawEntries = Array.isArray(input) ? input : []
-  const fieldErrors: Record<string, string> = {}
+export function normalizeTimesheetEntries(entries: TimesheetEntryPayload[]): TimesheetEntryInput[] {
+  return DAY_LABELS.map((dayLabel, index) => {
+    const entry = entries[index]
+    const entryDate = DateTime.fromISO(entry.date, { zone: 'utc' })
 
-  const entries = DAY_LABELS.map((dayLabel, index) => {
-    const rawEntry = rawEntries[index]
-    const rawRecord = rawEntry && typeof rawEntry === 'object' ? rawEntry : {}
-    const entryDate = DateTime.fromISO(String((rawRecord as any).date ?? ''), { zone: 'utc' })
-
-    const entry: TimesheetEntryInput = {
-      date: entryDate.isValid ? (entryDate.toISODate() ?? '') : '',
+    return {
+      date: entryDate.toISODate() ?? '',
       dayLabel,
-      workedHours: null,
-      workedDays: null,
-      weeklyRestDays: null,
-      legalPaidLeaveDays: null,
-      conventionalPaidLeaveDays: null,
-      publicHolidayDays: null,
-      rttDays: null,
-      sickDays: null,
-      otherAbsenceDays: null,
-      otherAbsenceReason: String((rawRecord as any).otherAbsenceReason ?? '').trim(),
+      workedHours: parseNullableNumber(entry.workedHours, { max: 24 }),
+      workedDays: parseNullableNumber(entry.workedDays, { max: 1 }),
+      weeklyRestDays: parseNullableNumber(entry.weeklyRestDays, { max: 1 }),
+      legalPaidLeaveDays: parseNullableNumber(entry.legalPaidLeaveDays, { max: 1 }),
+      conventionalPaidLeaveDays: parseNullableNumber(entry.conventionalPaidLeaveDays, { max: 1 }),
+      publicHolidayDays: parseNullableNumber(entry.publicHolidayDays, { max: 1 }),
+      rttDays: parseNullableNumber(entry.rttDays, { max: 1 }),
+      sickDays: parseNullableNumber(entry.sickDays, { max: 1 }),
+      otherAbsenceDays: parseNullableNumber(entry.otherAbsenceDays, { max: 1 }),
+      otherAbsenceReason: entry.otherAbsenceReason?.trim() ?? '',
     }
-
-    if (!entry.date) {
-      fieldErrors[`entries.${index}.date`] = 'Date invalide'
-    }
-
-    for (const field of NUMBER_FIELDS) {
-      entry[field] = parseNullableNumber(
-        (rawRecord as any)[field],
-        `entries.${index}.${field}`,
-        fieldErrors,
-        {
-          halfStepOnly: field !== 'workedHours',
-          max: field === 'workedHours' ? 24 : 1,
-        }
-      )
-    }
-
-    if (entry.otherAbsenceDays && !entry.otherAbsenceReason) {
-      fieldErrors[`entries.${index}.otherAbsenceReason`] = 'Précisez le motif de l’absence'
-    }
-
-    return entry
   })
-
-  return { entries, fieldErrors }
 }
 
 export function computeTimesheetTotals(entries: TimesheetEntryInput[]): TimesheetTotals {

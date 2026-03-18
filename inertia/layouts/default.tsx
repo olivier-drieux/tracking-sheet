@@ -52,7 +52,7 @@ export default function Layout({ children }: { children: ReactElement<Data.Share
                 </>
               ) : (
                 <>
-                  <AnyLink route="new_account.create">Signup</AnyLink>
+                  <AnyLink route="signup.create">Signup</AnyLink>
                   <AnyLink route="session.create">Login</AnyLink>
                 </>
               )}

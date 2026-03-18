@@ -10,7 +10,7 @@ export default class User extends compose(UserSchema, withAuthFinder(hash)) {
   @hasMany(() => WeeklyTimesheet)
   declare weeklyTimesheets: HasMany<typeof WeeklyTimesheet>
 
-  get initials() {
+  get initials(): string {
     const [first, last] = this.fullName ? this.fullName.split(' ') : this.email.split('@')
     if (first && last) {
       return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase()

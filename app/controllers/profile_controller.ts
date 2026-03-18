@@ -1,4 +1,5 @@
 import { updateProfileValidator } from '#validators/profile'
+import { serializeProfile } from '#transformers/profile_transformer'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class ProfileController {
@@ -6,11 +7,7 @@ export default class ProfileController {
     const user = auth.getUserOrFail()
 
     return inertia.render('profile/edit', {
-      profile: {
-        fullName: user.fullName ?? '',
-        annualDaysPackage: user.annualDaysPackage,
-        signatureDataUrl: user.signatureDataUrl,
-      },
+      profile: serializeProfile(user),
     })
   }
 
@@ -28,6 +25,6 @@ export default class ProfileController {
 
     session.flash('success', 'Profil mis a jour')
 
-    return response.redirect('/profile')
+    return response.redirect().toRoute('profile.edit')
   }
 }

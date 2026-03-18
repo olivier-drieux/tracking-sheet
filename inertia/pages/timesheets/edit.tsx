@@ -1,42 +1,23 @@
 import { Form, Link } from '@adonisjs/inertia/react'
 import { ChangeEvent, useState } from 'react'
 import { DateTime } from 'luxon'
-
-interface TimesheetEntry {
-  id: number
-  date: string
-  dayLabel: string
-  workedHours: number | null
-  workedDays: number | null
-  weeklyRestDays: number | null
-  legalPaidLeaveDays: number | null
-  conventionalPaidLeaveDays: number | null
-  publicHolidayDays: number | null
-  rttDays: number | null
-  sickDays: number | null
-  otherAbsenceDays: number | null
-  otherAbsenceReason: string
-}
+import type {
+  TimesheetPageEntry,
+  TimesheetPageProfile,
+  TimesheetPageWarning,
+} from './types'
 
 interface TimesheetEditProps {
-  profile: {
-    annualDaysPackage: number
-    fullName: string
-    hasSignature: boolean
-  }
+  profile: TimesheetPageProfile
   timesheet: {
     id: number
     weekStartDate: string | null
     year: number
     monthLabel: string
     status: string
-    entries: TimesheetEntry[]
+    entries: TimesheetPageEntry[]
     totals: Record<string, number>
-    warnings: Array<{
-      dayLabel: string
-      date: string
-      message: string
-    }>
+    warnings: TimesheetPageWarning[]
   }
 }
 
@@ -76,7 +57,7 @@ const AnyLink = Link as any
 export default function TimesheetEdit({ timesheet, profile }: TimesheetEditProps) {
   const [entries, setEntries] = useState<EditableEntry[]>(
     timesheet.entries.map(
-      (entry: TimesheetEntry): EditableEntry => ({
+      (entry: TimesheetPageEntry): EditableEntry => ({
         ...entry,
         workedHours: toFieldValue(entry.workedHours),
         workedDays: toFieldValue(entry.workedDays),
@@ -196,20 +177,29 @@ export default function TimesheetEdit({ timesheet, profile }: TimesheetEditProps
                           </td>
                         ))}
                         <td>
-                          <input
-                            type="text"
-                            name={`entries[${index}][otherAbsenceReason]`}
-                            value={entry.otherAbsenceReason}
-                            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                              updateEntry(index, 'otherAbsenceReason', event.currentTarget.value)
-                            }
-                            data-invalid={
-                              errors[`entries.${index}.otherAbsenceReason`] ? 'true' : undefined
-                            }
-                          />
-                          {errors[`entries.${index}.otherAbsenceReason`] && (
-                            <div>{errors[`entries.${index}.otherAbsenceReason`]}</div>
-                          )}
+                          {(() => {
+                            const otherAbsenceReasonError =
+                              errors[`entries.${index}.otherAbsenceReason`] ?? errors[`entries.${index}`]
+
+                            return (
+                              <>
+                                <input
+                                  type="text"
+                                  name={`entries[${index}][otherAbsenceReason]`}
+                                  value={entry.otherAbsenceReason}
+                                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                                    updateEntry(
+                                      index,
+                                      'otherAbsenceReason',
+                                      event.currentTarget.value
+                                    )
+                                  }
+                                  data-invalid={otherAbsenceReasonError ? 'true' : undefined}
+                                />
+                                {otherAbsenceReasonError && <div>{otherAbsenceReasonError}</div>}
+                              </>
+                            )
+                          })()}
                         </td>
                       </tr>
                     ))}

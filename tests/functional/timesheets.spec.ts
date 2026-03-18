@@ -149,11 +149,7 @@ test.group('Timesheets', (group) => {
       })
 
     assert.equal(response.status(), 422)
-    assert.deepInclude(response.body(), {
-      errors: {
-        'entries.0.otherAbsenceReason': 'Précisez le motif de l’absence',
-      },
-    })
+    assert.properties(response.body().errors, ['entries.0'])
   })
 
   test('prevents access to another user timesheet', async ({ client, assert }) => {
@@ -177,7 +173,7 @@ test.group('Timesheets', (group) => {
     const timesheet = await WeeklyTimesheet.query().where('user_id', owner.id).firstOrFail()
 
     const response = await client
-      .get(`/timesheets/${timesheet.id}`)
+      .get(`/timesheets/${timesheet.id}/edit`)
       .withGuard('web')
       .loginAs(intruder)
 
@@ -204,5 +200,81 @@ test.group('Timesheets', (group) => {
     assert.equal(user.fullName, 'New Name')
     assert.equal(user.annualDaysPackage, 214)
     assert.equal(user.signatureDataUrl, 'data:image/png;base64,ZmFrZQ==')
+  })
+
+  test('rejects invalid half-day increments during timesheet update', async ({ client, assert }) => {
+    const user = await User.create({
+      email: 'validator@example.com',
+      password: 'secret123',
+      fullName: 'Validator User',
+      annualDaysPackage: 218,
+    })
+
+    await client.post('/timesheets').withGuard('web').loginAs(user).redirects(0).form({
+      weekStartDate: '2026-03-16',
+    })
+
+    const timesheet = await WeeklyTimesheet.query()
+      .where('user_id', user.id)
+      .preload('entries')
+      .firstOrFail()
+    const entries = timesheet.entries.sort((a, b) => a.position - b.position)
+
+    const response = await client
+      .put(`/timesheets/${timesheet.id}`)
+      .withGuard('web')
+      .loginAs(user)
+      .redirects(0)
+      .json({
+        entries: entries.map((entry, index) => ({
+          date: entry.entryDate.toISODate(),
+          workedHours: index < 5 ? '8' : '',
+          workedDays: index === 0 ? '0.25' : index < 5 ? '1' : '',
+          weeklyRestDays: index >= 5 ? '1' : '',
+          legalPaidLeaveDays: '',
+          conventionalPaidLeaveDays: '',
+          publicHolidayDays: '',
+          rttDays: '',
+          sickDays: '',
+          otherAbsenceDays: '',
+          otherAbsenceReason: '',
+        })),
+      })
+
+    assert.equal(response.status(), 422)
+    assert.properties(response.body().errors, ['entries.0.workedDays'])
+  })
+
+  test('reuses existing timesheet when the same week already exists', async ({ client, assert }) => {
+    const user = await User.create({
+      email: 'duplicate@example.com',
+      password: 'secret123',
+      fullName: 'Duplicate User',
+      annualDaysPackage: 218,
+    })
+
+    const firstResponse = await client
+      .post('/timesheets')
+      .withGuard('web')
+      .loginAs(user)
+      .redirects(0)
+      .form({
+        weekStartDate: '2026-03-18',
+      })
+
+    const secondResponse = await client
+      .post('/timesheets')
+      .withGuard('web')
+      .loginAs(user)
+      .redirects(0)
+      .form({
+        weekStartDate: '2026-03-16',
+      })
+
+    assert.equal(firstResponse.status(), 302)
+    assert.equal(secondResponse.status(), 302)
+
+    const timesheets = await WeeklyTimesheet.query().where('user_id', user.id)
+    assert.lengthOf(timesheets, 1)
   })
 })

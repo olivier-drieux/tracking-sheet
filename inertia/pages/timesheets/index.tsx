@@ -1,19 +1,10 @@
 import { Form, Link } from '@adonisjs/inertia/react'
 import { DateTime } from 'luxon'
+import type { TimesheetPageProfile, TimesheetPageSummary } from './types'
 
 interface TimesheetsIndexProps {
-  profile: {
-    annualDaysPackage: number
-    fullName: string
-    hasSignature: boolean
-  }
-  timesheets: Array<{
-    id: number
-    weekStartDate: string | null
-    monthLabel: string
-    year: number
-    status: string
-  }>
+  profile: TimesheetPageProfile
+  timesheets: TimesheetPageSummary[]
 }
 
 const AnyForm = Form as any
@@ -95,7 +86,7 @@ export default function TimesheetsIndex({ profile, timesheets }: TimesheetsIndex
           </div>
         ) : (
           <div className="timesheet-list">
-            {timesheets.map((timesheet: TimesheetsIndexProps['timesheets'][number]) => (
+            {timesheets.map((timesheet: TimesheetPageSummary) => (
               <article key={timesheet.id} className="timesheet-card">
                 <div>
                   <p className="eyebrow">Semaine du {formatDate(timesheet.weekStartDate)}</p>
@@ -106,7 +97,11 @@ export default function TimesheetsIndex({ profile, timesheets }: TimesheetsIndex
                 </div>
 
                 <div className="card-actions">
-                  <AnyLink className="button button-secondary" href={`/timesheets/${timesheet.id}`}>
+                  <AnyLink
+                    className="button button-secondary"
+                    route="timesheets.edit"
+                    routeParams={{ id: timesheet.id }}
+                  >
                     Editer
                   </AnyLink>
                   <a className="button" href={`/timesheets/${timesheet.id}/pdf`}>

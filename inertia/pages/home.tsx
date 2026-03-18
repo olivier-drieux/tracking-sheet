@@ -17,7 +17,7 @@ export default function Home({ user }: InertiaProps) {
             Ouvrir mes semaines
           </AnyLink>
         ) : (
-          <AnyLink className="button" route="new_account.create">
+          <AnyLink className="button" route="signup.create">
             Creer un compte
           </AnyLink>
         )}
