@@ -19,7 +19,7 @@ export interface Registry {
       errorResponse: unknown
     }
   }
-  'new_account.create': {
+  'signup.create': {
     methods: ["GET","HEAD"]
     pattern: '/signup'
     types: {
@@ -27,20 +27,20 @@ export interface Registry {
       paramsTuple: []
       params: {}
       query: {}
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/new_account_controller').default['create']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/new_account_controller').default['create']>>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/signup_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/signup_controller').default['create']>>>
     }
   }
-  'new_account.store': {
+  'signup.store': {
     methods: ["POST"]
     pattern: '/signup'
     types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/user').signupValidator)>>
+      body: ExtractBody<InferInput<(typeof import('#validators/auth').signupValidator)>>
       paramsTuple: []
       params: {}
-      query: ExtractQuery<InferInput<(typeof import('#validators/user').signupValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/new_account_controller').default['store']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/new_account_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      query: ExtractQuery<InferInput<(typeof import('#validators/auth').signupValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/signup_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/signup_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'session.create': {
@@ -59,12 +59,12 @@ export interface Registry {
     methods: ["POST"]
     pattern: '/login'
     types: {
-      body: {}
+      body: ExtractBody<InferInput<(typeof import('#validators/auth').loginValidator)>>
       paramsTuple: []
       params: {}
-      query: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/auth').loginValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/session_controller').default['store']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'timesheets.index': {
@@ -93,7 +93,7 @@ export interface Registry {
   }
   'timesheets.edit': {
     methods: ["GET","HEAD"]
-    pattern: '/timesheets/:id'
+    pattern: '/timesheets/:id/edit'
     types: {
       body: {}
       paramsTuple: [ParamValue]
@@ -104,15 +104,15 @@ export interface Registry {
     }
   }
   'timesheets.update': {
-    methods: ["PUT"]
+    methods: ["PUT","PATCH"]
     pattern: '/timesheets/:id'
     types: {
-      body: {}
+      body: ExtractBody<InferInput<(typeof import('#validators/timesheet').updateTimesheetValidator)>>
       paramsTuple: [ParamValue]
       params: { id: ParamValue }
-      query: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/timesheet').updateTimesheetValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/timesheets_controller').default['update']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/timesheets_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/timesheets_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'timesheets.pdf': {

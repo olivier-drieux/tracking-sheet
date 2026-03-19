@@ -20,5 +20,6 @@ declare module '@adonisjs/inertia/types' {
     'profile/edit': ExtractProps<(typeof import('../../inertia/pages/profile/edit.tsx'))['default']>
     'timesheets/edit': ExtractProps<(typeof import('../../inertia/pages/timesheets/edit.tsx'))['default']>
     'timesheets/index': ExtractProps<(typeof import('../../inertia/pages/timesheets/index.tsx'))['default']>
+    'timesheets/types': ExtractProps<(typeof import('../../inertia/pages/timesheets/types.ts'))['default']>
   }
 }
